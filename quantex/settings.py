@@ -3,7 +3,7 @@ from pathlib import Path
 from tempfile import gettempdir
 from typing import Optional
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from yarl import URL
 
 TEMP_DIR = Path(gettempdir())
@@ -54,6 +54,8 @@ class Settings(BaseSettings):  # type: ignore
     redis_user: Optional[str] = None
     redis_pass: Optional[str] = None
     redis_base: Optional[int] = None
+
+    secret_key: str = "secret"
 
     @property
     def db_url(self) -> URL:
