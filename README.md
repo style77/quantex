@@ -12,11 +12,19 @@ Quantex uses [Docker](https://www.docker.com/) to run. To install Docker, follow
 
 While development following tools are used:
 - [Visual Studio Code](https://code.visualstudio.com/)
+- [Git](https://git-scm.com/)
+- [GitFlow](https://github.com/petervanderdoes/gitflow-avh)
 
 - [Python 3.11](https://www.python.org/downloads/release/python-3110/)
 - [Poetry](https://python-poetry.org/docs/)
-- [Flake8](https://flake8.pycqa.org/en/latest/)
+
+- [PostgreSQL](https://www.postgresql.org/)
+- [FastAPI](https://fastapi.tiangolo.com/)
 - [SQLAlchemy](https://www.sqlalchemy.org/)
+
+- [Flake8](https://flake8.pycqa.org/en/latest/)
+- [Black](https://black.readthedocs.io/en/stable/)
+- [Mypy](https://mypy.readthedocs.io/en/stable/)
 
 - [TypeScript](https://www.typescriptlang.org/)
 - [ESLint](https://eslint.org/)

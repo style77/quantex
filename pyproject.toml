@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "quantex"
+version = "0.1.0"
+description = "Powerful trading bot, based on ChatGPT sentiment analysis of news headlines."
+authors = ["Joachim Hodana <stylek777@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+undetected-chromedriver = "^3.5.0"
+fastapi = "^0.100.0"
+pyyaml = "^6.0"
+sqlalchemy = "^2.0.18"
+yarl = "^1.9.2"
+uvicorn = "^0.22.0"
+fakeredis = "^2.16.0"
+httpx = "^0.24.1"
+alembic = "^1.11.1"
+
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^6.0.0"
+mypy = "^1.4.1"
+black = "^23.7.0"
+pytest = "^7.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

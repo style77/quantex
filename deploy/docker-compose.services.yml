@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:13.8-bullseye
+    hostname: quantex-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: $QUANTEX_DB_USER
+      POSTGRES_USER: $QUANTEX_DB_PASS
+      POSTGRES_DB: "quantex"
+    volumes:
+      - quantex-db-data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: pg_isready -U quantex
+      interval: 2s
+      timeout: 3s
+      retries: 40
+
+  redis:
+    image: bitnami/redis:6.2.5
+    hostname: "quantex-redis"
+    ports:
+      - "6379:6379"
+    restart: always
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 3s
+      retries: 50
+
+volumes:
+  quantex-db-data:
+    name: quantex-db-data

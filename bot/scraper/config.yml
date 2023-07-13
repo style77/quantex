@@ -1,0 +1,5 @@
+INTERVAL: 30
+# Count of first X rows to check for new data
+LOOK_FOR: 5
+
+DSN: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@quantex-db:5432/quantex
