@@ -16,6 +16,8 @@ uvicorn = "^0.22.0"
 fakeredis = "^2.16.0"
 httpx = "^0.24.1"
 alembic = "^1.11.1"
+pydantic-settings = "^2.0.1"
+asyncpg = "^0.28.0"
 
 
 [tool.poetry.group.dev.dependencies]
