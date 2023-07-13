@@ -21,8 +21,8 @@ def get_app() -> FastAPI:
     :return: application.
     """
     app = FastAPI(
-        title="insightguard",
-        version=metadata.version("insightguard"),
+        title="quantex",
+        version=metadata.version("quantex"),
         docs_url="/api/docs",
         redoc_url="/api/redoc",
         openapi_url="/api/openapi.json",
