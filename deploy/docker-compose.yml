@@ -1,0 +1,76 @@
+version: '3.9'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./deploy/api.Dockerfile
+    image: QUANTEX:${QUANTEX_VERSION:-latest}
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      QUANTEX_HOST: 0.0.0.0
+      QUANTEX_DB_HOST: ${QUANTEX_DB_HOST}
+      QUANTEX_DB_PORT: ${QUANTEX_DB_PORT}
+      QUANTEX_DB_USER: ${QUANTEX_DB_USER}
+      QUANTEX_DB_PASS: ${QUANTEX_DB_PASS}
+      QUANTEX_DB_BASE: ${QUANTEX_DB_BASE}
+      QUANTEX_SECRET_KEY: ${QUANTEX_SECRET_KEY}
+
+  db:
+    image: postgres:13.8-bullseye
+    hostname: ${QUANTEX_DB_HOST}
+    environment:
+      POSTGRES_PASSWORD: ${QUANTEX_DB_PASS}
+      POSTGRES_USER: ${QUANTEX_DB_USER}
+      POSTGRES_DB: ${QUANTEX_DB_BASE}
+    volumes:
+      - quantex-db-data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: pg_isready -U quantex
+      interval: 2s
+      timeout: 3s
+      retries: 40
+
+  migrator:
+    image: quantex:${QUANTEX_VERSION:-latest}
+    restart: "no"
+    command: alembic upgrade head
+    environment:
+      QUANTEX_DB_HOST: ${QUANTEX_DB_HOST}
+      QUANTEX_DB_PORT: ${QUANTEX_DB_PORT}
+      QUANTEX_DB_USER: ${QUANTEX_DB_USER}
+      QUANTEX_DB_PASS: ${QUANTEX_DB_PASS}
+      QUANTEX_DB_BASE: ${QUANTEX_DB_BASE}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  redis:
+    image: bitnami/redis:6.2.5
+    hostname: ${QUANTEX_REDIS_HOST}
+    restart: always
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 3s
+      retries: 50
+
+volumes:
+  quantex-db-data:
+    name: quantex-db-data
