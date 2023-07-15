@@ -18,6 +18,9 @@ httpx = "^0.24.1"
 alembic = "^1.11.1"
 pydantic-settings = "^2.0.1"
 asyncpg = "^0.28.0"
+psycopg2-binary = "^2.9.6"
+selenium = "^4.10.0"
+python-dotenv = "^1.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
