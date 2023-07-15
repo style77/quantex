@@ -53,6 +53,19 @@ When you look at `.env.example` file you can see a lot of meaningless variables.
 First in general is that, why is that project so huge, when it could just be one file with scraper, and maybe Telegram bot, the reason for that is that I want to make this project as modular as possible, so that it can be easily extended in the future. That's why it does contain API, Database, frontend, docker etc. Also making your own fullstack project is great way to learn and showoff.
 
 Entire project structure is closed, which means that only getting access to the server will allow attacker to get access to all of the api keys, secrets etc.
+Project is called a "bot", however it doesn't have any specific bot functionality, that's because it's bot for sending signals, not really trading bot. In future I might add trading bot functionality, but for now it's just a free signal bot.
 
-## QUANTEX_INVESTMENT_HORIZON
+### QUANTEX_INVESTMENT_HORIZON
 If you look at the code, you can see that we are saving both short term and long term investment explanation, why is that variable then specified in `.env` file? Well, the reason is that we are then posting the results to Telegram channel, and posting all of the results would be too much. So we are posting only the results that are in the investment horizon specified in `.env` file. That way we can post only the results that are relevant to the channel.
+
+# License
+
+This project is licensed under the terms of the GNU GPLv3 license.
+
+# Contributing
+
+If you want to contribute to this project, please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+
+# Authors
+
+- **[Joachim Hodana](github.com/style77)** - _Initial work_ - [Quantex](github.com/style77/quantex)
