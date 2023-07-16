@@ -34,7 +34,7 @@ While development following tools are used:
 
 and many, many more awesome tools.
 
-## Setup
+# Setup
 
 To setup the project, run the following commands:
 
@@ -46,6 +46,55 @@ git clone https://github.io/style77/quantex.git
 cd quantex
 
 ```
+
+Now it depends on you, how would you want to run project.
+
+## Docker
+
+To run project with docker, you need to have docker and docker compose installed. After that you can run the following command:
+
+**Development version**
+```bash
+docker-compose -f deploy/docker-compose.yml -f deploy/docker-compose.dev.yml --project-directory . up --build 
+```
+
+**Production version**
+```bash
+docker-compose -f deploy/docker-compose.yml --project-directory . up --build 
+```
+
+## Poetry
+
+To run project with poetry, you need to have python 3.11 and poetry installed. After that you can run the following command:
+
+*Following commends will only run API, that anyway won't work without database - to run **only database** you can run `docker-compose -f deploy/docker-compose.services.yml --project-directory . up --build`*
+```bash
+poetry install
+```
+
+```bash
+poetry run python -m quantex
+```
+
+### PgAdmin
+
+To access pgadmin, you need to start development version of docker compose. After that to get ip of the pgadmin dashboard, run the following command:
+
+```bash
+docker inspect pgadmin_container  | grep IPAddress.
+```
+
+The default email and password for pgadmin is `admin@admin.com root`.
+
+## Migrations
+
+To run migrations, you need to have python 3.11 and poetry installed. After that you can run the following command:
+
+```bash
+poetry run alembic upgrade head
+```
+
+Before that, it's recommended to change ip of the database in `.env` file to `0.0.0.0` (if you already got database running)
 
 # Details
 
