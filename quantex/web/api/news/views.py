@@ -11,7 +11,7 @@ from quantex.web.dependencies import verify_secret
 router = APIRouter()
 
 
-@router.get("/", dependencies=[Depends(verify_secret)], response_model=NewsModelDTO)
+@router.get("/", dependencies=[Depends(verify_secret)])
 async def get_news(
     news_dao: NewsDAO = Depends(),
     news_id: typing.Optional[int] = None,
@@ -22,20 +22,17 @@ async def get_news(
 ):
     """Get news by id and optional ticker, term or result."""
 
-    if headline:
-        # This is mostly for getting unique news
-        news = await news_dao.get_news_by_headline(headline)
-    elif news_id:
+    if news_id:
         news = await news_dao.get_news(int(news_id))
     else:
-        news = await news_dao.get_many_news(ticker, term, result)
+        news = await news_dao.get_many_news(ticker, term, headline, result)
 
     res = {
-        "news": news,
+        "news": [row.model_dump_json() for row in news] if news else [],
         "count": 0 if not news else len(news),
     }
 
-    return JSONResponse(res, media_type="application/json")
+    return JSONResponse(res)
 
 
 @router.post("/", dependencies=[Depends(verify_secret)])

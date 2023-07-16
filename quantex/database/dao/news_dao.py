@@ -19,11 +19,18 @@ class NewsDAO:
 
     async def create_news(self, news: NewsModelCreateDTO) -> None:
         """Create news."""
-        news_model = NewsModel(*news)
+        news_model = NewsModel()
+        news_model.headline = news.headline
+        news_model.ticker = news.ticker
+        news_model.term = news.term
+        news_model.result = news.result
+        news_model.explanation = news.explanation
+
+
         self.session.add(news_model)
         await self.session.commit()
 
-    async def get_news(self, news_id: int) -> NewsModelDTO:
+    async def get_news(self, news_id: int) -> typing.List[NewsModelDTO]:
         """Get news by id."""
         query = select(NewsModel).where(NewsModel.id == news_id)
         r = await self.session.execute(query)
@@ -32,12 +39,13 @@ class NewsDAO:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="News not found"
             )
-        return NewsModelDTO.from_orm(news)
+        return [NewsModelDTO.from_orm(news)]
 
     async def get_many_news(
         self,
         ticker: typing.Optional[str] = None,
         term: typing.Optional[str] = None,
+        headline: typing.Optional[str] = None,
         result: typing.Optional[str] = None,
     ) -> typing.List[NewsModelDTO]:
         """Get news by ticker, term or result."""
@@ -46,15 +54,11 @@ class NewsDAO:
             query = query.where(NewsModel.ticker == ticker)
         if term:
             query = query.where(NewsModel.term == term)
+        if headline:
+            query = query.where(NewsModel.headline == headline)
         if result:
             query = query.where(NewsModel.result == result)
         r = await self.session.execute(query)
         news = r.scalars().all()
-        return [NewsModelDTO.from_orm(n) for n in news]
+        return [NewsModelDTO.from_orm(n) for n in news] if news else []
 
-    async def get_news_by_headline(self, headline):
-        """Get news by headline."""
-        query = select(NewsModel).where(NewsModel.headline == headline)
-        r = await self.session.execute(query)
-        news = r.scalars().first()
-        return news
