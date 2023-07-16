@@ -18,15 +18,24 @@ async def get_news(
     ticker: typing.Optional[str] = None,
     term: typing.Optional[str] = None,
     result: typing.Optional[str] = None,
+    headline: typing.Optional[str] = None,
 ):
     """Get news by id and optional ticker, term or result."""
 
-    if news_id:
+    if headline:
+        # This is mostly for getting unique news
+        news = await news_dao.get_news_by_headline(headline)
+    elif news_id:
         news = await news_dao.get_news(int(news_id))
     else:
         news = await news_dao.get_many_news(ticker, term, result)
 
-    return JSONResponse(news)
+    res = {
+        "news": news,
+        "count": 0 if not news else len(news),
+    }
+
+    return JSONResponse(res, media_type="application/json")
 
 
 @router.post("/", dependencies=[Depends(verify_secret)])
