@@ -85,6 +85,12 @@ docker inspect pgadmin_container  | grep IPAddress.
 ```
 
 The default email and password for pgadmin is `admin@admin.com root`.
+To set up connection to the database, you need to create new server with the following details:
+
+connection address: `quantex-db`
+port: `5432`
+username: as specified in `.env` file
+password: as specified in `.env` file
 
 ## Migrations
 
