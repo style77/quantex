@@ -152,3 +152,5 @@ package-lock.json
 .next
 
 poetry.lock
+
+quantex/database/migrations/versions
