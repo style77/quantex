@@ -19,20 +19,6 @@ services:
       timeout: 3s
       retries: 40
 
-  redis:
-    image: bitnami/redis:6.2.5
-    hostname: "quantex-redis"
-    ports:
-      - "6379:6379"
-    restart: always
-    environment:
-      ALLOW_EMPTY_PASSWORD: "yes"
-    healthcheck:
-      test: redis-cli ping
-      interval: 1s
-      timeout: 3s
-      retries: 50
-
 volumes:
   quantex-db-data:
     name: quantex-db-data

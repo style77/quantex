@@ -18,8 +18,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_healthy
     environment:
       QUANTEX_HOST: 0.0.0.0
       QUANTEX_DB_HOST: ${QUANTEX_DB_HOST}
@@ -46,6 +44,8 @@ services:
       interval: 2s
       timeout: 3s
       retries: 40
+    networks:
+      - quantex_default
 
   migrator:
     build:
@@ -62,18 +62,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
-  redis:
-    image: bitnami/redis:6.2.5
-    hostname: "quantex-redis"
-    restart: always
-    environment:
-      ALLOW_EMPTY_PASSWORD: "yes"
-    healthcheck:
-      test: redis-cli ping
-      interval: 1s
-      timeout: 3s
-      retries: 50
+    networks:
+      - quantex_default
 
 volumes:
   quantex-db-data:

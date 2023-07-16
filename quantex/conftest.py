@@ -1,11 +1,8 @@
 from typing import Any, AsyncGenerator
 
 import pytest
-from fakeredis import FakeServer
-from fakeredis.aioredis import FakeConnection
 from fastapi import FastAPI
 from httpx import AsyncClient
-from redis.asyncio import ConnectionPool
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -15,7 +12,6 @@ from sqlalchemy.ext.asyncio import (
 
 from quantex.database.dependencies import get_db_session
 from quantex.database.utils import create_database, drop_database
-from quantex.services.redis.dependencies import get_redis_pool
 from quantex.settings import settings
 from quantex.web.application import get_app
 
@@ -86,25 +82,8 @@ async def dbsession(
 
 
 @pytest.fixture
-async def fake_redis_pool() -> AsyncGenerator[ConnectionPool, None]:
-    """
-    Get instance of a fake redis.
-
-    :yield: FakeRedis instance.
-    """
-    server = FakeServer()
-    server.connected = True
-    pool = ConnectionPool(connection_class=FakeConnection, server=server)
-
-    yield pool
-
-    await pool.disconnect()
-
-
-@pytest.fixture
 def fastapi_app(
     dbsession: AsyncSession,
-    fake_redis_pool: ConnectionPool,
 ) -> FastAPI:
     """
     Fixture for creating FastAPI app.
@@ -113,7 +92,6 @@ def fastapi_app(
     """
     application = get_app()
     application.dependency_overrides[get_db_session] = lambda: dbsession
-    application.dependency_overrides[get_redis_pool] = lambda: fake_redis_pool
     return application  # noqa: WPS331
 
 

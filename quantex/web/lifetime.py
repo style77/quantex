@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from quantex.services.redis.lifetime import init_redis, shutdown_redis
 from quantex.settings import settings
 
 
@@ -50,7 +49,6 @@ def register_startup_event(
     @app.on_event("startup")
     async def _startup() -> None:
         _setup_db(app)
-        init_redis(app)
         pass
 
     return _startup
@@ -70,7 +68,6 @@ def register_shutdown_event(
     async def _shutdown() -> None:
         await app.state.db_engine.dispose()
 
-        await shutdown_redis(app)
         pass
 
     return _shutdown
