@@ -1,4 +1,5 @@
 import enum
+import typing
 from pathlib import Path
 from tempfile import gettempdir
 from typing import Optional
@@ -56,6 +57,15 @@ class Settings(BaseSettings):  # type: ignore
     redis_base: Optional[int] = None
 
     secret_key: str = "secret"
+
+    # These values are only to prevent bug with pydantic-settings IGNORE
+
+    investment_horizon: typing.Literal["short", "long"] = "short"
+    interval: int = 30
+    dsn: str = "postgresql://quantex:quantex@quantex-db:5432/quantex"
+    newsfilter_user: str = "quantex"
+    newsfilter_password: str = "quantex"
+    edenai_api_key: str = "API_KEY"
 
     @property
     def db_url(self) -> URL:
