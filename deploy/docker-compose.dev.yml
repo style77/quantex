@@ -11,3 +11,11 @@ services:
     environment:
       # Enables autoreload.
       QUANTEX_RELOAD: "True"
+
+  pgadmin:
+    image: dpage/pgadmin4:5.7
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-root}
+    ports:
+      - "5050:80"
