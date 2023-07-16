@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: ./deploy/api.Dockerfile
-    image: QUANTEX:${QUANTEX_VERSION:-latest}
+    image: quantex:${QUANTEX_VERSION:-latest}
     deploy:
       resources:
         limits:
@@ -31,7 +31,7 @@ services:
 
   db:
     image: postgres:13.8-bullseye
-    hostname: ${QUANTEX_DB_HOST}
+    hostname: "quantex-db"
     environment:
       POSTGRES_PASSWORD: ${QUANTEX_DB_PASS}
       POSTGRES_USER: ${QUANTEX_DB_USER}
@@ -39,6 +39,8 @@ services:
     volumes:
       - quantex-db-data:/var/lib/postgresql/data
     restart: always
+    ports:
+        - "5432:5432"
     healthcheck:
       test: pg_isready -U quantex
       interval: 2s
@@ -46,7 +48,9 @@ services:
       retries: 40
 
   migrator:
-    image: quantex:${QUANTEX_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: ./deploy/migrator.Dockerfile
     restart: "no"
     command: alembic upgrade head
     environment:
@@ -61,7 +65,7 @@ services:
 
   redis:
     image: bitnami/redis:6.2.5
-    hostname: ${QUANTEX_REDIS_HOST}
+    hostname: "quantex-redis"
     restart: always
     environment:
       ALLOW_EMPTY_PASSWORD: "yes"
