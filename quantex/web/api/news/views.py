@@ -13,7 +13,6 @@ router = APIRouter()
 
 @router.get("/", dependencies=[Depends(verify_secret)], response_model=NewsModelDTO)
 async def get_news(
-    request: Request,
     news_dao: NewsDAO = Depends(),
     news_id: typing.Optional[int] = None,
     ticker: typing.Optional[str] = None,
