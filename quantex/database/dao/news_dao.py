@@ -51,3 +51,10 @@ class NewsDAO:
         r = await self.session.execute(query)
         news = r.scalars().all()
         return [NewsModelDTO.from_orm(n) for n in news]
+
+    async def get_news_by_headline(self, headline):
+        """Get news by headline."""
+        query = select(NewsModel).where(NewsModel.headline == headline)
+        r = await self.session.execute(query)
+        news = r.scalars().first()
+        return news
