@@ -11,7 +11,12 @@ import logging
 from dotenv import load_dotenv
 import requests
 
+from .listener import EventListener
+from .telegram import TelegramBot
+
 load_dotenv()
+listener = EventListener()
+telegram_bot = TelegramBot(os.getenv("QUANTEX_TELEGRAM_BOT_API_KEY"))
 
 
 def convert_relative_timestamp(timestamp):
@@ -85,6 +90,8 @@ class NewsScraper:
         Returns:
         - None
         """
+        self.driver.execute_cdp_cmd("Network.setCacheDisabled", {"cacheDisabled": True})
+
         self.driver.get(self.URL)
 
         self.logger.debug("Logging in")
@@ -173,6 +180,16 @@ class NewsScraper:
 
         r = requests.post(url, json=payload, headers=headers)
         data = r.json()["openai"]
+
+        if "generated_text" not in data:
+            if "error" in data:
+                self.logger.error(f"Error: {data['error']}")
+                if data["error"].get("type") == "ProviderLimitationError":
+                    self.logger.error(f"Sleeping 30 seconds and retrying")
+                    time.sleep(30)
+                    return self.analyze(ticker, term, headline)
+            self.logger.error(f"Invalid response: {data}")
+            return
 
         result = data["generated_text"].split("-")[0].strip()
         if result == "UNKNOWN":
@@ -316,6 +333,8 @@ class NewsScraper:
                 - ticker (list): A list of tickers associated with the article.
                 - headline (str): The headline of the article.
         """
+        self.logger.info("Hard reloading newsfilter.io")
+
         self.logger.debug("Scraping newsfilter.io")
 
         # Get all the articles
@@ -349,7 +368,7 @@ class NewsScraper:
                     continue
 
             if tickers:
-                self.logger.debug(f"Scraped tickers: {tickers}")
+                self.logger.info(f"Scraped tickers: {tickers}")
 
             if not tickers or " " in tickers or "" in tickers:
                 self.logger.debug("No tickers scraped")
@@ -360,17 +379,27 @@ class NewsScraper:
                 f"//div[{index + 1}]/{'a' if with_a else 'div'}/div/div[1]/div/span",
             ).text
 
-            self.logger.debug(f"Scraped timestamp: {timestamp}")
+            self.logger.info(f"Scraped timestamp: {timestamp}")
 
             headline = article.find_element(
                 By.XPATH,
                 f"//div[{index + 1}]/{'a' if with_a else 'div'}/div/div[3]/div/span[1]",
             ).text
 
-            self.logger.debug(f"Scraped headline: {headline}")
+            self.logger.info(f"Scraped headline: {headline}")
+
+            if not timestamp or not headline:
+                self.logger.debug("Invalid timestamp or headline")
+                continue
+
+            try:
+                datetime_obj = convert_relative_timestamp(timestamp)
+            except ValueError:
+                self.logger.debug("Invalid timestamp")
+                continue
 
             data = {
-                "timestamp": convert_relative_timestamp(timestamp),
+                "timestamp": datetime_obj,
                 "ticker": tickers,
                 "headline": headline,
             }
@@ -391,6 +420,7 @@ class NewsScraper:
                 self.setup()
 
                 while True:
+                    self.driver.execute_script("location.reload(true);")
                     time.sleep(4)
 
                     data = []
@@ -408,13 +438,19 @@ class NewsScraper:
                     self.logger.info(f"Found {len(data)} new articles" if len(data) > 0 else "No new articles found")
                     if data:
                         results = []
-                        for _item in data:
+                        for index, _item in enumerate(data):
+                            self.logger.info(f"Analyzing {index + 1}/{len(data)}")
+
                             ticker_list = _item["ticker"]
                             headline = _item["headline"]
                             for ticker in ticker_list:
                                 result = self.check_headline(ticker, headline)
                                 results.append(result)
 
+                                self.logger.info("Sending result to telegram chat")
+                                listener.call("unique_data", item=result)
+
+                        self.logger.info("Inserting results into database")
                         self.insert_results(results)
 
                     self.logger.info(f"Sleeping for {os.getenv('QUANTEX_INTERVAL', 30)} seconds")
@@ -453,12 +489,45 @@ def preconfigure():
     return user, password, edenai_key
 
 
+@listener.on("unique_data")
+def on_unique_data(item: list):
+    payload_short = {
+        "term": "short",
+        "result": item["term"]["short"],
+        "ticker": item["ticker"],
+        "headline": item["headline"],
+        "explanation": item["explanation"]["short"],
+    }
+    payload_long = {
+        "term": "long",
+        "result": item["term"]["long"],
+        "ticker": item["ticker"],
+        "headline": item["headline"],
+        "explanation": item["explanation"]["long"],
+    }
+    payloads = [payload_short, payload_long]
+
+    if payload_long.get("result", "neutral") == "neutral" or payload_short.get("result", "neutral") == "neutral":
+        return
+
+    for payload in payloads:
+        message = f"""
+            {payload["ticker"]} - {payload["headline"]}
+            
+            Result: **{payload["result"]}**
+            Term: {payload["term"]}
+            
+            Explanation: {payload["explanation"][2:]}
+        """
+
+        r = telegram_bot.send_message(os.getenv("QUANTEX_TELEGRAM_CHAT_ID"), message)
+
+
 if __name__ == "__main__":
     logging.basicConfig(
         level=logging.DEBUG if os.getenv("QUANTEX_ENVIRONMENT", "prod") == "dev" else logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[
-            logging.FileHandler("scraper.log"),
             logging.StreamHandler()
         ]
     )
