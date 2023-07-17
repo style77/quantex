@@ -59,6 +59,8 @@ class Settings(BaseSettings):  # type: ignore
     newsfilter_user: str = "quantex"
     newsfilter_password: str = "quantex"
     edenai_api_key: str = "API_KEY"
+    telegram_bot_api_key: str = "API_KEY"
+    telegram_chat_id: str = "CHAT_ID"
 
     @property
     def db_url(self) -> URL:
