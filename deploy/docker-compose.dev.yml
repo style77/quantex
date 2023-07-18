@@ -21,3 +21,9 @@ services:
       - "5050:80"
     networks:
       - quantex_default # Add this line to connect to the existing network
+
+networks:
+  quantex_default:
+    # Add this section to define the existing network
+    external:
+      name: quantex_default

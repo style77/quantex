@@ -38,7 +38,7 @@ services:
       - quantex-db-data:/var/lib/postgresql/data
     restart: always
     ports:
-        - "5432:5432"
+      - "5432:5432"
     healthcheck:
       test: pg_isready -U quantex
       interval: 2s
@@ -68,3 +68,7 @@ services:
 volumes:
   quantex-db-data:
     name: quantex-db-data
+
+networks:
+  quantex_default:
+    driver: bridge
