@@ -71,4 +71,5 @@ volumes:
 
 networks:
   quantex_default:
+    name: quantex_default
     driver: bridge
