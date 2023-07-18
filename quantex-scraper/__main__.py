@@ -162,10 +162,10 @@ class NewsScraper:
         url = "https://api.edenai.run/v2/text/chat"
         payload = {
             "providers": "openai",
-            "text": f"Answer “YES” if good news, “NO” if bad news, or “UNKNOWN” \
+            "text": f'Answer “YES” if good news, “NO” if bad news, or “UNKNOWN” \
                       if uncertain. Then elaborate with one short and \
-                      concise sentence and split elaborate and result with dash' \"-\". Is this headline good or bad for \
-                      the stock price of {ticker} in the {term} term? Headline: {headline}",
+                      concise sentence and split elaborate and result with dash\' "-". Is this headline good or bad for \
+                      the stock price of {ticker} in the {term} term? Headline: {headline}',
             "chat_global_action": "Act as a financial expert. You are a financial expert \
                                    with stock recommendation experience.",
             "previous_history": [],
@@ -202,7 +202,7 @@ class NewsScraper:
             self.logger.error(f"Invalid result: {result}")
             return
 
-        explanation = ''.join(data["generated_text"].split("\n")[1:]).strip()
+        explanation = "".join(data["generated_text"].split("\n")[1:]).strip()
 
         return {
             "term": term,
@@ -233,15 +233,13 @@ class NewsScraper:
                 short and long term sentiment scores.
                     - short (str): The explanation for the short term sentiment score.
                     - long (str): The explanation for the long term sentiment score.
-
-        Raises:
-            Exception: If the API returns an invalid result.
         """
         result_short = self.analyze(ticker, "short", headline)
         result_long = self.analyze(ticker, "long", headline)
 
         if not result_short or not result_long:
-            raise Exception("No result")
+            self.logger.error("Invalid result")
+            return
 
         return {
             "term": {
@@ -270,12 +268,16 @@ class NewsScraper:
         unique = []
 
         for item in data:
-            r = requests.get(self.API_URL, params={
-                "headline": item["headline"],
-                "ticker": item["ticker"],
-            }, headers={
-                "x-secret": self.API_SECRET,
-            })
+            r = requests.get(
+                self.API_URL,
+                params={
+                    "headline": item["headline"],
+                    "ticker": item["ticker"],
+                },
+                headers={
+                    "x-secret": self.API_SECRET,
+                },
+            )
 
             if r.json()["count"] == 0:
                 unique.append(item)
@@ -353,16 +355,16 @@ class NewsScraper:
                     f"//div[{index + 1}]/a/div/div[2]/div/span",
                 )
 
-                tickers = [
-                    ticker.text for ticker in tickers_element
-                ]
+                tickers = [ticker.text for ticker in tickers_element]
                 tickers = tickers[:-1]
             else:
                 try:
-                    tickers = [article.find_element(
-                        By.XPATH,
-                        f"//div[{index + 1}]/div/div/div[2]/div/span[1]",
-                    ).text]
+                    tickers = [
+                        article.find_element(
+                            By.XPATH,
+                            f"//div[{index + 1}]/div/div/div[2]/div/span[1]",
+                        ).text
+                    ]
                 except NoSuchElementException:
                     self.logger.debug("No tickers scraped")
                     continue
@@ -403,9 +405,7 @@ class NewsScraper:
                 "ticker": tickers,
                 "headline": headline,
             }
-            results.append(
-                data
-            )
+            results.append(data)
 
         if len(results) > 0:
             self.logger.info(f"Scraped {len(results)} articles")
@@ -435,7 +435,11 @@ class NewsScraper:
 
                     data = self.check_for_unique(data)
 
-                    self.logger.info(f"Found {len(data)} new articles" if len(data) > 0 else "No new articles found")
+                    self.logger.info(
+                        f"Found {len(data)} new articles"
+                        if len(data) > 0
+                        else "No new articles found"
+                    )
                     if data:
                         results = []
                         for index, _item in enumerate(data):
@@ -445,6 +449,8 @@ class NewsScraper:
                             headline = _item["headline"]
                             for ticker in ticker_list:
                                 result = self.check_headline(ticker, headline)
+                                if not result:
+                                    continue
                                 results.append(result)
 
                                 self.logger.info("Sending result to telegram chat")
@@ -453,7 +459,9 @@ class NewsScraper:
                         self.logger.info("Inserting results into database")
                         self.insert_results(results)
 
-                    self.logger.info(f"Sleeping for {os.getenv('QUANTEX_INTERVAL', 30)} seconds")
+                    self.logger.info(
+                        f"Sleeping for {os.getenv('QUANTEX_INTERVAL', 30)} seconds"
+                    )
                     time.sleep(int(os.getenv("QUANTEX_INTERVAL", 30)))
         except Exception as e:
             traceback.print_exc()
@@ -507,7 +515,10 @@ def on_unique_data(item: list):
     }
     payloads = [payload_short, payload_long]
 
-    if payload_long.get("result", "neutral") == "neutral" or payload_short.get("result", "neutral") == "neutral":
+    if (
+        payload_long.get("result", "neutral") == "neutral"
+        or payload_short.get("result", "neutral") == "neutral"
+    ):
         return
 
     for payload in payloads:
@@ -525,11 +536,11 @@ def on_unique_data(item: list):
 
 if __name__ == "__main__":
     logging.basicConfig(
-        level=logging.DEBUG if os.getenv("QUANTEX_ENVIRONMENT", "prod") == "dev" else logging.INFO,
+        level=logging.DEBUG
+        if os.getenv("QUANTEX_ENVIRONMENT", "prod") == "dev"
+        else logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
-        handlers=[
-            logging.StreamHandler()
-        ]
+        handlers=[logging.StreamHandler()],
     )
 
     _user, _password, _edenai_key = preconfigure()
