@@ -1,5 +1,7 @@
 # Quantex
 
+Take a look at running scrapper on [Telegram Channel](https://t.me/quantex_signals)
+
 Powerful trading bot, based on ChatGPT sentiment analysis of news headlines.
 
 ## Motivation
