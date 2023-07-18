@@ -19,6 +19,12 @@ listener = EventListener()
 telegram_bot = TelegramBot(os.getenv("QUANTEX_TELEGRAM_BOT_API_KEY"))
 
 
+def get_chromedriver_path():
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    chromedriver_path = os.path.join(current_directory, "driver", "chromedriver")
+    return chromedriver_path
+
+
 def convert_relative_timestamp(timestamp):
     """
     Convert a relative timestamp to a normal datetime.
