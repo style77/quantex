@@ -538,8 +538,12 @@ def on_unique_data(item: list):
     ):
         return
 
+    if payload_long["result"] == payload_short["result"]:
+        payloads = [payload_long]
+
     for payload in payloads:
-        message = f"*{payload['ticker']}* - {payload['headline']}\n\nResult: *{payload['result']}\n*Term: {payload['term']}\n\n"
+        message = f"*{payload['ticker']}* - {payload['headline']}\n\nResult: \
+                    *{payload['result']}\n*Term: {payload['term']}\n\n"
 
         if payload["explanation"]:
             message += f"Explanation: {payload['explanation'].strip()[2:]}"
