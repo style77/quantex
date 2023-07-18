@@ -15,6 +15,8 @@ from .listener import EventListener
 from .telegram import TelegramBot
 
 load_dotenv()
+INTERVAL = int(os.getenv("QUANTEX_INTERVAL", 30))
+
 listener = EventListener()
 telegram_bot = TelegramBot(os.getenv("QUANTEX_TELEGRAM_BOT_API_KEY"))
 
@@ -476,14 +478,12 @@ class NewsScraper:
                         self.logger.info("Inserting results into database")
                         self.insert_results(results)
 
-                    self.logger.info(
-                        f"Sleeping for {os.getenv('QUANTEX_INTERVAL', 30)} seconds"
-                    )
+                    self.logger.info(f"Sleeping for {INTERVAL} seconds")
                     telegram_bot.send_message(
                         os.getenv("QUANTEX_TELEGRAM_CHAT_ID"),
-                        f"Sleeping for {os.getenv('QUANTEX_INTERVAL', 30)} seconds",
+                        f"Sleeping until {time.strftime('%H:%M', time.localtime(time.time() + INTERVAL))}",
                     )
-                    time.sleep(int(os.getenv("QUANTEX_INTERVAL", 30)))
+                    time.sleep(INTERVAL)
         except Exception as e:
             traceback.print_exc()
             self.logger.error("An error occurred: %s", str(e))
