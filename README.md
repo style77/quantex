@@ -100,7 +100,28 @@ To run migrations, you need to have python 3.11 and poetry installed. After that
 poetry run alembic upgrade head
 ```
 
+to create new migration, you can run the following command:
+
+```bash
+poetry run alembic revision --autogenerate -m "migration name"
+```
+
 Before that, it's recommended to change ip of the database in `.env` file to `0.0.0.0` (if you already got database running)
+
+## Chromedriver on ARM64
+
+Running scraper on ARM64 is a bit tricky, because there is no official chromedriver for ARM64. 
+Look at [#727](https://github.com/ultrafunkamsterdam/undetected-chromedriver/issues/727) and [#1072](https://github.com/ultrafunkamsterdam/undetected-chromedriver/issues/1072) for more details.
+
+To run scraper (on any arch) use following commands:
+
+```bash
+# Create new screen
+screen -S scraper
+
+# Run scraper
+poetry run python -m quantex-scraper
+```
 
 # Details
 
