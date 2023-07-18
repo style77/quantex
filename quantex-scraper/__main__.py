@@ -539,12 +539,10 @@ def on_unique_data(item: list):
         return
 
     for payload in payloads:
-        message = f"""
-        {payload["ticker"]} - {payload["headline"]}\n
-        Result: *{payload["result"]}*
-        Term: {payload["term"]}\n
-        Explanation: {payload["explanation"][2:]}
-        """
+        message = f"""{payload["ticker"]} - {payload["headline"]}\nResult: *{payload["result"]}*Term: {payload["term"]}\n"""
+
+        if payload["explanation"]:
+            message += f"Explanation: {payload['explanation']}"
 
         telegram_bot.send_message(
             os.getenv("QUANTEX_TELEGRAM_CHAT_ID"), message
