@@ -479,6 +479,10 @@ class NewsScraper:
                     self.logger.info(
                         f"Sleeping for {os.getenv('QUANTEX_INTERVAL', 30)} seconds"
                     )
+                    telegram_bot.send_message(
+                        os.getenv("QUANTEX_TELEGRAM_CHAT_ID"),
+                        f"Sleeping for {os.getenv('QUANTEX_INTERVAL', 30)} seconds",
+                    )
                     time.sleep(int(os.getenv("QUANTEX_INTERVAL", 30)))
         except Exception as e:
             traceback.print_exc()
