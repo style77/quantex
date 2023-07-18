@@ -543,6 +543,7 @@ def on_unique_data(item: list):
         return
 
     if payload_long["result"] == payload_short["result"]:
+        payload_long["term"] = "both"
         payloads = [payload_long]
 
     for payload in payloads:
