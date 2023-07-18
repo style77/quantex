@@ -8,6 +8,6 @@ class TelegramBot:
         self.api_url = "https://api.telegram.org/bot{}/".format(token)
 
     def send_message(self, chat: str, text: str):
-        data = {"chat_id": chat, "text": text}
+        data = {"chat_id": chat, "text": text, "parse_mode": "markdown"}
         r = requests.post(self.api_url + "sendMessage", data=data)
         return r.json()

@@ -541,7 +541,7 @@ def on_unique_data(item: list):
     for payload in payloads:
         message = f"""
         {payload["ticker"]} - {payload["headline"]}\n
-        Result: **{payload["result"]}**
+        Result: *{payload["result"]}*
         Term: {payload["term"]}\n
         Explanation: {payload["explanation"][2:]}
         """
