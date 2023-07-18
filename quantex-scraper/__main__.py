@@ -552,9 +552,11 @@ def on_unique_data(item: list):
         if payload["explanation"]:
             message += f"Explanation: {payload['explanation'].strip()[2:]}"
 
-        telegram_bot.send_message(
+        r = telegram_bot.send_message(
             os.getenv("QUANTEX_TELEGRAM_CHAT_ID"), message
         )
+
+        logging.info(r)
 
 
 if __name__ == "__main__":
