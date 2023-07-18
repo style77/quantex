@@ -26,7 +26,6 @@ class NewsDAO:
         news_model.result = news.result
         news_model.explanation = news.explanation
 
-
         self.session.add(news_model)
         await self.session.commit()
 
@@ -61,4 +60,3 @@ class NewsDAO:
         r = await self.session.execute(query)
         news = r.scalars().all()
         return [NewsModelDTO.from_orm(n) for n in news] if news else []
-

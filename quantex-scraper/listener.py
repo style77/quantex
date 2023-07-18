@@ -8,6 +8,7 @@ class EventListener:
                 self.listeners[event] = []
             self.listeners[event].append(func)
             return func
+
         return decorator
 
     def call(self, event, *args, **kwargs):

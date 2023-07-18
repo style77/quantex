@@ -1,11 +1,10 @@
 import typing
 from fastapi import APIRouter
 from fastapi.param_functions import Depends
-from starlette.requests import Request
 from starlette.responses import JSONResponse
 from quantex.database.dao.news_dao import NewsDAO
 
-from quantex.web.api.news.schema import NewsModelCreateDTO, NewsModelDTO
+from quantex.web.api.news.schema import NewsModelCreateDTO
 from quantex.web.dependencies import verify_secret
 
 router = APIRouter()

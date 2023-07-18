@@ -21,7 +21,9 @@ telegram_bot = TelegramBot(os.getenv("QUANTEX_TELEGRAM_BOT_API_KEY"))
 
 def get_chromedriver_path():
     current_directory = os.path.dirname(os.path.abspath(__file__))
-    chromedriver_path = os.path.join(current_directory, "driver", "chromedriver")
+    chromedriver_path = os.path.join(
+        current_directory, "driver", "chromedriver"
+    )
     return chromedriver_path
 
 
@@ -96,7 +98,9 @@ class NewsScraper:
         Returns:
         - None
         """
-        self.driver.execute_cdp_cmd("Network.setCacheDisabled", {"cacheDisabled": True})
+        self.driver.execute_cdp_cmd(
+            "Network.setCacheDisabled", {"cacheDisabled": True}
+        )
 
         self.driver.get(self.URL)
 
@@ -131,7 +135,7 @@ class NewsScraper:
             login_form = self.driver.find_element(
                 By.XPATH, "/html/body/div/div[2]/div[4]/div/div[1]/div"
             )
-        except Exception as e:
+        except Exception:
             login_form = None
 
         if login_form:
@@ -191,7 +195,7 @@ class NewsScraper:
             if "error" in data:
                 self.logger.error(f"Error: {data['error']}")
                 if data["error"].get("type") == "ProviderLimitationError":
-                    self.logger.error(f"Sleeping 30 seconds and retrying")
+                    self.logger.error("Sleeping 30 seconds and retrying")
                     time.sleep(30)
                     return self.analyze(ticker, term, headline)
             self.logger.error(f"Invalid response: {data}")
@@ -331,8 +335,8 @@ class NewsScraper:
         Scrape the given webpage using the provided Selenium driver.
 
         Args:
-            with_a (bool): Whether to scrape with the "a" tag or not. This is because of the different HTML structure
-                           of the website.
+            with_a (bool): Whether to scrape with the "a" tag or not.
+            This is because of the different HTML structure of the website.
 
         Returns:
             list: A list of dictionaries containing the scraped data. Each dictionary
@@ -422,7 +426,10 @@ class NewsScraper:
 
     def run(self):
         try:
-            with uc.Chrome(options=self.options) as self.driver:
+            with uc.Chrome(
+                options=self.options,
+                driver_executable_path=get_chromedriver_path(),
+            ) as self.driver:
                 self.setup()
 
                 while True:
@@ -449,7 +456,9 @@ class NewsScraper:
                     if data:
                         results = []
                         for index, _item in enumerate(data):
-                            self.logger.info(f"Analyzing {index + 1}/{len(data)}")
+                            self.logger.info(
+                                f"Analyzing {index + 1}/{len(data)}"
+                            )
 
                             ticker_list = _item["ticker"]
                             headline = _item["headline"]
@@ -459,7 +468,9 @@ class NewsScraper:
                                     continue
                                 results.append(result)
 
-                                self.logger.info("Sending result to telegram chat")
+                                self.logger.info(
+                                    "Sending result to telegram chat"
+                                )
                                 listener.call("unique_data", item=result)
 
                         self.logger.info("Inserting results into database")
@@ -484,11 +495,11 @@ def preconfigure():
 
     Returns:
         Tuple[str, str, str]: A tuple containing the values of "NEWSFILTER_USER",
-        "NEWSFILTER_PASSWORD", and "EDENAI_API_KEY".
+                              "NEWSFILTER_PASSWORD", and "EDENAI_API_KEY".
 
     Raises:
-        Exception: If either the "NEWSFILTER_USER" or "NEWSFILTER_PASSWORD" environment
-        variables are missing.
+        Exception: If either the "NEWSFILTER_USER" or "NEWSFILTER_PASSWORD"
+                   environment variables are missing.
         Exception: If the "EDENAI_API_KEY" environment variable is missing.
     """
     user = os.getenv("QUANTEX_NEWSFILTER_USER")
@@ -529,15 +540,15 @@ def on_unique_data(item: list):
 
     for payload in payloads:
         message = f"""
-            {payload["ticker"]} - {payload["headline"]}
-            
-            Result: **{payload["result"]}**
-            Term: {payload["term"]}
-            
-            Explanation: {payload["explanation"][2:]}
+        {payload["ticker"]} - {payload["headline"]}\n
+        Result: **{payload["result"]}**
+        Term: {payload["term"]}\n
+        Explanation: {payload["explanation"][2:]}
         """
 
-        r = telegram_bot.send_message(os.getenv("QUANTEX_TELEGRAM_CHAT_ID"), message)
+        telegram_bot.send_message(
+            os.getenv("QUANTEX_TELEGRAM_CHAT_ID"), message
+        )
 
 
 if __name__ == "__main__":

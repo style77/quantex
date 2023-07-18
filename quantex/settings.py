@@ -2,7 +2,6 @@ import enum
 import typing
 from pathlib import Path
 from tempfile import gettempdir
-from typing import Optional
 
 from pydantic_settings import BaseSettings
 from yarl import URL
