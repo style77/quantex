@@ -49,7 +49,6 @@ def register_startup_event(
     @app.on_event("startup")
     async def _startup() -> None:
         _setup_db(app)
-        pass
 
     return _startup
 
@@ -67,7 +66,5 @@ def register_shutdown_event(
     @app.on_event("shutdown")
     async def _shutdown() -> None:
         await app.state.db_engine.dispose()
-
-        pass
 
     return _shutdown
