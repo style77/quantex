@@ -23,10 +23,7 @@ telegram_bot = TelegramBot(os.getenv("QUANTEX_TELEGRAM_BOT_API_KEY"))
 
 def get_chromedriver_path():
     current_directory = os.path.dirname(os.path.abspath(__file__))
-    chromedriver_path = os.path.join(
-        current_directory, "driver", "chromedriver"
-    )
-    return chromedriver_path
+    return os.path.join(current_directory, "driver", "chromedriver")
 
 
 def convert_relative_timestamp(timestamp):
@@ -48,22 +45,20 @@ def convert_relative_timestamp(timestamp):
     unit = timestamp[-1]
 
     # Define the time delta based on the unit
-    if unit == "s":
-        delta = timedelta(seconds=int(value))
-    elif unit == "m":
-        delta = timedelta(minutes=int(value))
+    if unit == "d":
+        delta = timedelta(days=int(value))
     elif unit == "h":
         delta = timedelta(hours=int(value))
-    elif unit == "d":
-        delta = timedelta(days=int(value))
+    elif unit == "m":
+        delta = timedelta(minutes=int(value))
+    elif unit == "s":
+        delta = timedelta(seconds=int(value))
     elif unit == "w":
         delta = timedelta(weeks=int(value))
     else:
         raise ValueError("Invalid timestamp unit")
 
-    normal_datetime = datetime.now() - delta
-
-    return normal_datetime
+    return datetime.now() - delta
 
 
 class NewsScraper:
@@ -419,7 +414,7 @@ class NewsScraper:
             }
             results.append(data)
 
-        if len(results) > 0:
+        if results:
             self.logger.info(f"Scraped {len(results)} articles")
         else:
             self.logger.warning("No articles scraped")
@@ -511,11 +506,10 @@ def preconfigure():
     if not user or not password:
         raise Exception("Missing user or password")
 
-    edenai_key = os.getenv("QUANTEX_EDENAI_API_KEY")
-    if not edenai_key:
+    if edenai_key := os.getenv("QUANTEX_EDENAI_API_KEY"):
+        return user, password, edenai_key
+    else:
         raise Exception("Missing EdenAI API key")
-
-    return user, password, edenai_key
 
 
 @listener.on("unique_data")
