@@ -33,12 +33,12 @@ class NewsDAO:
         """Get news by id."""
         query = select(NewsModel).where(NewsModel.id == news_id)
         r = await self.session.execute(query)
-        news = r.scalars().first()
-        if not news:
+        if news := r.scalars().first():
+            return [NewsModelDTO.from_orm(news)]
+        else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="News not found"
             )
-        return [NewsModelDTO.from_orm(news)]
 
     async def get_many_news(
         self,
